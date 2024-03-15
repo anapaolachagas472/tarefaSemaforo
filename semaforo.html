@@ -45,11 +45,13 @@
 
   .status {
     position: absolute;
-    top: 30px; /* Alterado para deixar mais abaixo */
+    top: 20px; /* Alterado para deixar mais acima */
     left: 50%;
     transform: translateX(-50%);
-    font-size: 18px; /* Tamanho da fonte reduzido */
+    font-size: 18px; /* Tamanho da fonte */
+    font-weight: bold; /* Texto em negrito */
     color: #333;
+    text-align: center; /* Alinhamento central */
   }
 
   .yellow .heart {
@@ -85,7 +87,7 @@
   }
 
   button:hover {
-    background-color: #e91e63; /* Cor de fundo rosa mais escura no hover */
+    background-color: #e91e63; 
   }
 </style>
 </head>
@@ -108,12 +110,12 @@
         const heart = document.createElement('div');
         heart.classList.add('heart');
         heart.textContent = emoji;
-        heart.style.left = `${Math.random() * 100}vw`; // Posição horizontal aleatória
-        heart.style.top = `${Math.random() * 100}vh`; // Posição vertical aleatória
+        heart.style.left = `${Math.random() * 100}vw`; 
+        heart.style.top = `${Math.random() * 100}vh`; 
         return heart;
       }
 
-      // Adicionando corações ao contêiner
+    
       function addHearts(numHearts, emoji) {
         for (let i = 0; i < numHearts; i++) {
           const heart = createHeart(emoji);
@@ -121,7 +123,7 @@
         }
       }
 
-      addHearts(100, '❤️'); // Adiciona 100 corações vermelhos inicialmente
+      addHearts(100, '❤️'); 
     </script>
   </div>
 
