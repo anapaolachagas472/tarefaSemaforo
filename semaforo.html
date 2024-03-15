@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Controle de Trânsito da Sala</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #fde6f2; /* Cor de fundo rosa claro */
+    margin: 0;
+    overflow: hidden;
+  }
+
+  .heart-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .heart {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    font-size: 20px;
+    pointer-events: none;
+    animation: heart-float 2s infinite linear;
+  }
+
+  @keyframes heart-float {
+    0% {
+      transform: translateY(0) rotate(0);
+    }
+    50% {
+      transform: translateY(-20px) rotate(45deg);
+    }
+    100% {
+      transform: translateY(0) rotate(0);
+    }
+  }
+
+  .status {
+    position: absolute;
+    top: 30px; /* Alterado para deixar mais abaixo */
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 18px; /* Tamanho da fonte reduzido */
+    color: #333;
+  }
+
+  .yellow .heart {
+    color: #ffc107; /* Amarelo */
+  }
+
+  .red .heart {
+    color: #f44336; /* Vermelho */
+  }
+
+  .green .heart {
+    color: #4caf50; /* Verde */
+  }
+
+  /* Estilo para o botão */
+  .button-container {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  button {
+    padding: 10px 20px;
+    font-size: 18px;
+    background-color: #ff4081; /* Cor de fundo rosa */
+    color: #fff; /* Cor do texto branco */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-right: 10px; /* Espaçamento entre botões */
+  }
+
+  button:hover {
+    background-color: #e91e63; /* Cor de fundo rosa mais escura no hover */
+  }
+</style>
+</head>
+<body>
+  <!-- Áudio para a mudança de status -->
+  <audio id="statusSound">
+    <source src="magic-11238.mp3" type="audio/mpeg">
+   
+  </audio>
+
+  <div class="status" id="status"></div>
+
+  <div class="heart-container">
+    <!-- Geração de corações -->
+    <script>
+      const container = document.querySelector('.heart-container');
+
+      // Função para criar corações
+      function createHeart(emoji) {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.textContent = emoji;
+        heart.style.left = `${Math.random() * 100}vw`; // Posição horizontal aleatória
+        heart.style.top = `${Math.random() * 100}vh`; // Posição vertical aleatória
+        return heart;
+      }
+
+      // Adicionando corações ao contêiner
+      function addHearts(numHearts, emoji) {
+        for (let i = 0; i < numHearts; i++) {
+          const heart = createHeart(emoji);
+          container.appendChild(heart);
+        }
+      }
+
+      addHearts(100, '❤️'); // Adiciona 100 corações vermelhos inicialmente
+    </script>
+  </div>
+
+
+  <script>
+    const statusElement = document.getElementById('status');
+    const heartContainer = document.querySelector('.heart-container');
+    const statusSound = document.getElementById('statusSound');
+
+    function updateStatus() {
+      fetch('https://niloweb.com.br/transit-room/api/reg_endpoint.php')
+        .then(response => response.json())
+        .then(data => {
+          let statusMessage;
+          let heartEmoji;
+          
+          if (data[0].res === 'A') {
+            statusMessage = 'aguardando liberação e sem ninguém fora de sala'; // Minúsculas
+            heartEmoji = '💛'; // Amarelo
+            heartContainer.className = 'heart-container yellow';
+          } else if (data[0].res === 'B') {
+            statusMessage = 'bloqueado, transito com alguém fora da sala ou liberado para sair'; // Minúsculas
+            heartEmoji = '❤️'; // Vermelho
+            heartContainer.className = 'heart-container red';
+          } else if (data[0].res === 'L') {
+            statusMessage = 'liberado, transito livre e sem ninguém fora de sala'; // Minúsculas
+            heartEmoji = '💚'; // Verde
+            heartContainer.className = 'heart-container green';
+          } else {
+            statusMessage = '';
+            heartEmoji = '';
+            heartContainer.className = 'heart-container';
+          }
+
+          statusElement.textContent = statusMessage;
+          heartContainer.innerHTML = ''; // Limpa os corações antigos
+          addHearts(100, heartEmoji); // Adiciona corações com o novo emoji
+          statusSound.play(); // Toca o som
+        })
+        .catch(error => {
+          console.error('Erro ao obter dados:', error);
+          statusElement.textContent = 'Erro ao obter dados do servidor';
+        });
+    }
+
+    // Atualiza o status a cada 1 minuto
+    setInterval(updateStatus, 60000);
+    updateStatus(); // Atualiza o status imediatamente ao carregar a página
+  </script>
+</body>
+</html>
